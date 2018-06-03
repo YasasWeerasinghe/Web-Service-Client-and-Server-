@@ -1,0 +1,81 @@
+// Login and Registration
+
+package Sever;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.jws.WebService;
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+
+/**
+ *
+ * @author Yasas Weerasingh
+ */
+@WebService(serviceName = "Sever")
+public class Sever {
+Connection conn = null;
+PreparedStatement pst = null;
+ResultSet rs = null;
+
+
+
+    /**
+     * This is a sample web service operation
+     */
+    @WebMethod(operationName = "Registration")
+    public void Registration(@WebParam(name = "name") String name,@WebParam(name = "loginID") String loginID,@WebParam(name = "password") String password,@WebParam(name = "rePassword") String rePassword) {
+        try {
+            Class.forName("com.mysql.jdbc.Driver"); // mysql driver
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Sever.class.getName()).log(Level.SEVERE, null, ex);
+        }
+             
+             try {  // database path
+                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/iitcsacw","root","");
+                
+                 // registration db table sql query // inserting data to the table
+        String sql = "Insert into registration (name,loginID,password,rePassword) values ('"+name+"','"+loginID+"','"+password+"','"+rePassword+"')";
+        Statement stat =(Statement) conn.prepareStatement(sql); // send sql statment to the database
+        stat.executeUpdate(sql); //close the database connection to void tying up database resources
+              
+            } catch (SQLException ex) {
+                Logger.getLogger(Sever.class.getName()).log(Level.SEVERE, null, ex);
+            }            
+             
+    }
+    
+    @WebMethod(operationName = "Login")
+    public boolean Login(@WebParam(name = "password") String password,@WebParam(name = "loginID") String loginID) {
+        boolean resultSet=false;
+        try {
+            Class.forName("com.mysql.jdbc.Driver"); // mysql driver
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Sever.class.getName()).log(Level.SEVERE, null, ex);
+        }
+             
+             try {                      // database path
+                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/iitcsacw","root","");
+                
+                // login db table sql query // selecting data from the table
+        String sql = "Select * from registration where loginID = '"+loginID+"' AND password = '"+password+"'";
+        Statement stat =(Statement) conn.prepareStatement(sql); // send sql statment to the database
+        ResultSet rSet = stat.executeQuery(sql);
+        resultSet =rSet.next();
+           
+            } catch (SQLException ex) {
+                Logger.getLogger(Sever.class.getName()).log(Level.SEVERE, null, ex);
+            }            
+             return resultSet;
+    }
+    
+}
+
